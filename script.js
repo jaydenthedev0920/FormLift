@@ -1,3 +1,8 @@
+// Register service worker
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/service-worker.js");
+}
+
 // ===== FORMLIFT MAIN SCRIPT =====
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -299,3 +304,4 @@ function generateWorkout() {
     const countEl = document.getElementById('workoutCount');
     countEl.textContent = parseInt(countEl.textContent) + 1;
 }
+
