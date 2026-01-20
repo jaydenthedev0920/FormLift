@@ -1,4 +1,266 @@
-/* ===== FORMLIFT STYLES ===== */
+/* ===== SPLASH SCREEN STYLES ===== */
+.splash-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+    transition: opacity 0.8s ease;
+    overflow: hidden;
+}
+
+.splash-container.splash-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rings-container {
+    width: 280px;
+    height: 280px;
+    position: absolute;
+    transform: scale(0.5);
+    opacity: 0;
+    animation: ringsAppear 3s ease-out forwards;
+}
+
+@keyframes ringsAppear {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+    85% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+}
+
+.ring {
+    transform-origin: center;
+    opacity: 0.4;
+    transform: rotate(-90deg);
+}
+
+.ring-1 {
+    stroke-dasharray: 502;
+    stroke-dashoffset: 502;
+    animation: ringComplete1 1.8s 0.3s ease-out forwards;
+}
+
+.ring-2 {
+    stroke-dasharray: 377;
+    stroke-dashoffset: 377;
+    animation: ringComplete2 1.8s 0.5s ease-out forwards;
+}
+
+.ring-3 {
+    stroke-dasharray: 251;
+    stroke-dashoffset: 251;
+    animation: ringComplete3 1.8s 0.7s ease-out forwards;
+}
+
+@keyframes ringComplete1 {
+    0% {
+        stroke-dashoffset: 502;
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+@keyframes ringComplete2 {
+    0% {
+        stroke-dashoffset: 377;
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}
+
+@keyframes ringComplete3 {
+    0% {
+        stroke-dashoffset: 251;
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 1;
+    }
+}/* ===== SPLASH SCREEN STYLES ===== */
+.splash-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+    transition: opacity 0.8s ease;
+    overflow: hidden;
+}
+
+.splash-container.splash-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rings-container {
+    width: 280px;
+    height: 280px;
+    position: absolute;
+    transform: scale(0.5);
+    opacity: 0;
+    animation: ringsAppear 3s ease-out forwards;
+}
+
+@keyframes ringsAppear {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.08);
+    }
+    85% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+}
+
+.ring {
+    stroke-dasharray: 502;
+    stroke-dashoffset: 502;
+    transform-origin: center;
+    opacity: 0.4;
+}
+
+.ring-1 {
+    stroke-dasharray: 502;
+    stroke-dashoffset: 502;
+    animation: ringComplete1 1.8s 0.3s ease-out forwards;
+}
+
+.ring-2 {
+    stroke-dasharray: 377;
+    stroke-dashoffset/* ===== SPLASH SCREEN STYLES ===== */
+.splash-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+    transition: opacity 0.8s ease;
+    overflow: hidden;
+}
+
+.splash-container.splash-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rings-container {
+    width: 300px;
+    height: 300px;
+    position: absolute;
+    animation: ringsScale 3s ease-out forwards;
+}
+
+@keyframes ringsScale {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    60% {
+        transform: scale(1);
+    }
+    80% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.ring {
+    stroke-dasharray: 502; /* 2 * PI * radius for each ring */
+    stroke-dashoffset: 502;
+    transform-origin: center;
+    animation: ringComplete 2s ease-out forwards;
+}
+
+.ring-1 {
+    stroke-dasharray: 502;
+    stroke-dashoffset: 502;
+    animation: ringComplete 1.5s 0.2s ease-out forwards;
+}
+
+.ring-2 {
+    stroke-dasharray: 377;
+    stroke-dashoffset: 377;
+    animation: ringComplete 1.5s 0.4s ease-out forwards;
+}
+
+.ring-3 {
+    stroke-dasharray: 251;
+    stroke-dashoffset: 251;
+    animation: ringComplete 1.5s 0.6s ease-out forwards;
+}
+
+@keyframes ringComplete {
+    0% {
+        stroke-dashoffset: 502;
+        opacity: 0.3;
+        filter: drop-shadow(0 0 5px current/* ===== FORMLIFT STYLES ===== */
 
 * {
     margin: 0;
@@ -882,20 +1144,20 @@ footer {
 }
 
 .logo-text.draw {
-    animation: textReveal 2s 2s ease-out forwards;
+    animation: textReveal 1.5s ease-out forwards;
 }
 
 @keyframes textReveal {
     0% {
         opacity: 0;
-        letter-spacing: 20px;
-        filter: drop-shadow(0 0 5px rgba(0, 255, 135, 0.3)) blur(10px);
-        transform: translate(-50%, -50%) scale(0.8);
+        letter-spacing: 15px;
+        filter: drop-shadow(0 0 5px rgba(0, 255, 135, 0.3)) blur(8px);
+        transform: translate(-50%, -50%) scale(0.9);
     }
-    50% {
+    60% {
         opacity: 1;
-        letter-spacing: 5px;
-        filter: drop-shadow(0 0 20px rgba(0, 255, 135, 0.6)) blur(2px);
+        letter-spacing: 0px;
+        filter: drop-shadow(0 0 25px rgba(0, 255, 135, 0.7)) blur(1px);
         transform: translate(-50%, -50%) scale(1.05);
     }
     100% {
@@ -908,12 +1170,13 @@ footer {
 
 .splash-particle {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: linear-gradient(135deg, #00ff87, #00d4ff);
     opacity: 0;
-    animation: particleExplode 1.2s 2.2s ease-out forwards;
+    animation: particleExplode 1s ease-out forwards;
+    box-shadow: 0 0 10px rgba(0, 255, 135, 0.8);
 }
 
 @keyframes particleExplode {
