@@ -10,27 +10,26 @@
 <body>
     <!-- Splash Screen -->
     <div id="splashScreen" class="splash-container">
-        <div class="droplet" id="droplet">
-            <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="dropGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style="stop-color:#00ff87;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:1" />
-                    </linearGradient>
-                    <filter id="glow">
-                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                        <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                </defs>
-                <path d="M50,10 C50,10 20,45 20,70 C20,88 33,100 50,100 C67,100 80,88 80,70 C80,45 50,10 50,10 Z" 
-                      fill="url(#dropGradient)" 
-                      filter="url(#glow)"/>
-                <ellipse cx="40" cy="50" rx="8" ry="12" fill="rgba(255,255,255,0.3)"/>
-            </svg>
-        </div>
+        <svg class="rings-container" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <filter id="ringGlow">
+                    <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+            
+            <!-- Ring 1 - Outer (Green - accent-primary) -->
+            <circle class="ring ring-1" cx="100" cy="100" r="80" fill="none" stroke="#00ff87" stroke-width="14" stroke-linecap="round" filter="url(#ringGlow)"/>
+            
+            <!-- Ring 2 - Middle (Cyan - accent-secondary) -->
+            <circle class="ring ring-2" cx="100" cy="100" r="60" fill="none" stroke="#00d4ff" stroke-width="14" stroke-linecap="round" filter="url(#ringGlow)"/>
+            
+            <!-- Ring 3 - Inner (Green lighter) -->
+            <circle class="ring ring-3" cx="100" cy="100" r="40" fill="none" stroke="#66ffaa" stroke-width="14" stroke-linecap="round" filter="url(#ringGlow)"/>
+        </svg>
         
         <div id="splashParticles"></div>
         <div class="logo-text" id="logoText">FormLift</div>
