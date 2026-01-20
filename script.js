@@ -24,6 +24,7 @@ function initSplash() {
     const logoText = document.getElementById('logoText');
     
     console.log('Splash init started');
+    console.log('Logo text element:', logoText);
     
     // Make sure splash is visible
     if (splashScreen) {
@@ -52,13 +53,29 @@ function initSplash() {
         }
     }
 
-    // Trigger text drawing animation
-    setTimeout(() => {
-        console.log('Text animation starting');
-        if (logoText) {
+    // Trigger text drawing animation - multiple attempts to ensure it works
+    if (logoText) {
+        // Immediate attempt
+        setTimeout(() => {
+            console.log('Text animation starting - adding draw class');
             logoText.classList.add('draw');
-        }
-    }, 100);
+            console.log('Draw class added, classList:', logoText.classList.toString());
+        }, 100);
+        
+        // Backup attempt
+        setTimeout(() => {
+            if (!logoText.classList.contains('draw')) {
+                console.log('Backup: Adding draw class');
+                logoText.classList.add('draw');
+            }
+        }, 500);
+        
+        // Force show as fallback
+        setTimeout(() => {
+            console.log('Forcing text visibility');
+            logoText.style.opacity = '1';
+        }, 2500);
+    }
 
     // Hide splash and show main app after animation
     setTimeout(() => {
