@@ -1,7 +1,6 @@
 // ===== FORMLIFT MAIN SCRIPT =====
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Hide app content immediately on all platforms (web + PWA)
     const mainAppContent = document.getElementById('mainAppContent');
     if (mainAppContent) {
         mainAppContent.style.display = 'none';
@@ -9,48 +8,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initSplash();
-    initNavigation();
-    initAuthModals();
-    initUserMenu();
+    initNavTouchHack();
+    initAuthModal();
     initVideoUpload();
-    initPRTracker();
     enforceAuthGate();
 });
 
 /* ===== AUTH GATE ===== */
-/* Simple localStorage-based gate:
-   - If "formliftUser" not set → force user into auth section
-   - You can later replace this with real Supabase auth
-*/
+/* If no "formliftUser" in localStorage → force auth modal open */
 
 function enforceAuthGate() {
     const user = localStorage.getItem('formliftUser');
-    const authSection = document.getElementById('authSection');
-    const navButtons = document.querySelectorAll('.nav-btn');
-    const sections = document.querySelectorAll('.content');
+    const authModal = document.getElementById('authModal');
 
-    if (!sections.length) return;
-
-    if (!user) {
-        // No account → show auth section only
-        sections.forEach(sec => {
-            if (authSection && sec.id === authSection.id) {
-                sec.classList.add('active');
-            } else {
-                sec.classList.remove('active');
-            }
-        });
-
-        navButtons.forEach(btn => btn.classList.remove('active'));
-
-        // Optionally auto-open login modal if present
-        const loginModal = document.getElementById('loginModal');
-        if (loginModal) {
-            loginModal.classList.add('active');
-        }
-    } else {
-        // User exists → leave navigation as-is
-        console.log('User detected in localStorage:', user);
+    if (!user && authModal) {
+        openAuthModal();
     }
 }
 
@@ -62,21 +34,14 @@ function initSplash() {
     const particlesContainer = document.getElementById('splashParticles');
     const logoText = document.getElementById('logoText');
 
-    if (!splashScreen || !mainAppContent) {
-        console.warn('Splash or main app container missing');
-        return;
-    }
+    if (!splashScreen || !mainAppContent) return;
 
-    // Ensure splash is visible on all platforms
     splashScreen.style.display = 'flex';
     splashScreen.classList.remove('splash-hidden');
-
-    console.log('Starting FormLift splash sequence');
 
     // Particle burst after rings complete (~2.6s)
     setTimeout(() => {
         if (!particlesContainer) return;
-        console.log('Creating splash particles');
 
         particlesContainer.innerHTML = '';
         const count = 24;
@@ -93,9 +58,8 @@ function initSplash() {
         }
     }, 2600);
 
-    // Show logo text with glow
+    // Show logo text
     setTimeout(() => {
-        console.log('Showing FormLift logo text');
         if (logoText) {
             logoText.classList.add('show');
         }
@@ -103,7 +67,6 @@ function initSplash() {
 
     // Hide splash, show app
     setTimeout(() => {
-        console.log('Transitioning from splash to app');
         splashScreen.classList.add('splash-hidden');
 
         setTimeout(() => {
@@ -111,128 +74,155 @@ function initSplash() {
             mainAppContent.style.display = 'block';
             mainAppContent.classList.remove('app-hidden');
             mainAppContent.classList.add('app-visible');
+
+            // iOS PWA safety: ensure clicks are enabled
+            document.body.style.pointerEvents = 'auto';
         }, 800);
     }, 5200);
 }
 
-/* ===== NAVIGATION / SECTIONS ===== */
+/* ===== NAVIGATION (INLINE HANDLERS + iOS TOUCH FIX) ===== */
 
-function initNavigation() {
+function initNavTouchHack() {
     const navButtons = document.querySelectorAll('.nav-btn');
-    const sections = document.querySelectorAll('.content');
-
-    if (!navButtons.length || !sections.length) return;
-
     navButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetId = btn.getAttribute('data-target');
-            if (!targetId) return;
-
-            navButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            sections.forEach(sec => {
-                if (sec.id === targetId) {
-                    sec.classList.add('active');
-                } else {
-                    sec.classList.remove('active');
-                }
-            });
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+        // iOS PWA: ensure element is treated as interactive
+        btn.addEventListener('touchstart', () => {}, { passive: true });
     });
 }
 
-/* ===== AUTH MODALS ===== */
+// Called from HTML: onclick="showSection('home')" etc.
+function showSection(sectionKey) {
+    const map = {
+        home: 'home-section',
+        workout: 'workout-section',
+        formcheck: 'formcheck-section',
+        history: 'history-section'
+    };
 
-function initAuthModals() {
-    const loginModal = document.getElementById('loginModal');
-    const signupModal = document.getElementById('signupModal');
-    const loginBtn = document.getElementById('loginBtn');
-    const signupBtn = document.getElementById('signupBtn');
-    const closeButtons = document.querySelectorAll('.modal .close');
+    const targetId = map[sectionKey];
+    if (!targetId) return;
 
-    function openModal(modal) {
-        if (!modal) return;
-        modal.classList.add('active');
-    }
-
-    function closeModal(modal) {
-        if (!modal) return;
-        modal.classList.remove('active');
-    }
-
-    if (loginBtn && loginModal) {
-        loginBtn.addEventListener('click', () => openModal(loginModal));
-    }
-
-    if (signupBtn && signupModal) {
-        signupBtn.addEventListener('click', () => openModal(signupModal));
-    }
-
-    closeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const modal = btn.closest('.modal');
-            closeModal(modal);
-        });
-    });
-
-    [loginModal, signupModal].forEach(modal => {
-        if (!modal) return;
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal(modal);
-            }
-        });
-    });
-
-    // Example: fake auth success hook
-    const fakeLoginForm = document.getElementById('loginForm');
-    if (fakeLoginForm) {
-        fakeLoginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            // In real app, replace with Supabase auth
-            localStorage.setItem('formliftUser', 'demo-user');
-            if (loginModal) loginModal.classList.remove('active');
-            enforceAuthGate();
-        });
-    }
-
-    const fakeSignupForm = document.getElementById('signupForm');
-    if (fakeSignupForm) {
-        fakeSignupForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            localStorage.setItem('formliftUser', 'demo-user');
-            if (signupModal) signupModal.classList.remove('active');
-            enforceAuthGate();
-        });
-    }
-}
-
-/* ===== USER MENU ===== */
-
-function initUserMenu() {
-    const userButton = document.getElementById('userMenuButton');
-    const dropdown = document.querySelector('.user-dropdown');
-
-    if (!userButton || !dropdown) return;
-
-    userButton.addEventListener('click', () => {
-        dropdown.classList.toggle('active');
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!userButton.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.classList.remove('active');
+    const sections = document.querySelectorAll('.content');
+    sections.forEach(sec => {
+        if (sec.id === targetId) {
+            sec.classList.add('active');
+        } else {
+            sec.classList.remove('active');
         }
     });
+
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => btn.classList.remove('active'));
+
+    // Match by text content
+    navButtons.forEach(btn => {
+        const text = btn.textContent.trim().toLowerCase();
+        if (
+            (sectionKey === 'home' && text === 'home') ||
+            (sectionKey === 'workout' && text === 'workout') ||
+            (sectionKey === 'formcheck' && text === 'form check') ||
+            (sectionKey === 'history' && text === 'history')
+        ) {
+            btn.classList.add('active');
+        }
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ===== AUTH MODAL LOGIC ===== */
+
+function initAuthModal() {
+    const authModal = document.getElementById('authModal');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+
+    if (!authModal) return;
+
+    // Close on background click
+    authModal.addEventListener('click', (e) => {
+        if (e.target === authModal) {
+            closeAuthModal();
+        }
+    });
+
+    // Ensure forms exist
+    if (loginForm && signupForm) {
+        // nothing extra here yet
+    }
+}
+
+function openAuthModal() {
+    const authModal = document.getElementById('authModal');
+    if (!authModal) return;
+    authModal.classList.add('active');
+}
+
+function closeAuthModal() {
+    const authModal = document.getElementById('authModal');
+    if (!authModal) return;
+    authModal.classList.remove('active');
+}
+
+// Switch between login and signup views
+function switchToSignup() {
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    if (!loginForm || !signupForm) return;
+
+    loginForm.style.display = 'none';
+    signupForm.style.display = 'block';
+}
+
+function switchToLogin() {
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    if (!loginForm || !signupForm) return;
+
+    signupForm.style.display = 'none';
+    loginForm.style.display = 'block';
+}
+
+// Fake login/signup handlers (replace with Supabase later)
+function handleLogin() {
+    const email = document.getElementById('loginEmail')?.value.trim();
+    const password = document.getElementById('loginPassword')?.value.trim();
+
+    if (!email || !password) {
+        alert('Enter email and password');
+        return;
+    }
+
+    // TODO: replace with real Supabase auth
+    localStorage.setItem('formliftUser', email);
+    closeAuthModal();
+}
+
+function handleSignup() {
+    const email = document.getElementById('signupEmail')?.value.trim();
+    const password = document.getElementById('signupPassword')?.value.trim();
+    const confirm = document.getElementById('signupPasswordConfirm')?.value.trim();
+
+    if (!email || !password || !confirm) {
+        alert('Fill out all fields');
+        return;
+    }
+
+    if (password !== confirm) {
+        alert('Passwords do not match');
+        return;
+    }
+
+    // TODO: replace with real Supabase auth
+    localStorage.setItem('formliftUser', email);
+    closeAuthModal();
 }
 
 /* ===== VIDEO UPLOAD ===== */
 
 function initVideoUpload() {
-    const uploadArea = document.getElementById('videoUploadArea');
+    const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('videoInput');
     const videoPreview = document.getElementById('videoPreview');
 
@@ -274,64 +264,30 @@ function initVideoUpload() {
     });
 }
 
-/* ===== PR TRACKER ===== */
+/* ===== WORKOUT GENERATOR (STUB) ===== */
 
-function initPRTracker() {
-    const prForm = document.getElementById('prForm');
-    const prList = document.getElementById('prList');
+function generateWorkout() {
+    const focus = document.getElementById('workoutFocus')?.value || 'fullbody';
+    const time = document.getElementById('workoutTime')?.value || '60';
+    const level = document.getElementById('experienceLevel')?.value || 'intermediate';
+    const equipment = document.getElementById('equipment')?.value || 'full';
+    const result = document.getElementById('workoutResult');
 
-    if (!prForm || !prList) return;
+    if (!result) return;
 
-    prForm.addEventListener('submit', (e) => {
-        e.preventDefault();
+    // Placeholder content — you can wire AI later
+    result.innerHTML = `
+        <div class="exercise">
+            <div class="exercise-name">${focus.toUpperCase()} Session</div>
+            <div class="exercise-details">
+                ${time} min • ${level} • ${equipment.replace(/(^\w)/, c => c.toUpperCase())}
+            </div>
+        </div>
+    `;
 
-        const exerciseInput = prForm.querySelector('input[name="exercise"]');
-        const weightInput = prForm.querySelector('input[name="weight"]');
-        const repsInput = prForm.querySelector('input[name="reps"]');
-
-        if (!exerciseInput || !weightInput || !repsInput) return;
-
-        const exercise = exerciseInput.value.trim();
-        const weight = weightInput.value.trim();
-        const reps = repsInput.value.trim();
-
-        if (!exercise || !weight || !reps) return;
-
-        const item = document.createElement('div');
-        item.className = 'pr-item';
-
-        const info = document.createElement('div');
-        info.className = 'pr-info';
-
-        const title = document.createElement('div');
-        title.className = 'pr-exercise';
-        title.textContent = exercise;
-
-        const stats = document.createElement('div');
-        stats.className = 'pr-stats';
-        stats.textContent = `${weight} lbs × ${reps} reps`;
-
-        const date = document.createElement('div');
-        date.className = 'pr-date';
-        date.textContent = new Date().toLocaleDateString();
-
-        info.appendChild(title);
-        info.appendChild(stats);
-        info.appendChild(date);
-
-        const delBtn = document.createElement('button');
-        delBtn.className = 'pr-delete';
-        delBtn.textContent = 'Delete';
-        delBtn.addEventListener('click', () => {
-            prList.removeChild(item);
-        });
-
-        item.appendChild(info);
-        item.appendChild(delBtn);
-        prList.prepend(item);
-
-        exerciseInput.value = '';
-        weightInput.value = '';
-        repsInput.value = '';
-    });
+    const countEl = document.getElementById('workoutCount');
+    if (countEl) {
+        const current = parseInt(countEl.textContent || '0', 10) || 0;
+        countEl.textContent = current + 1;
+    }
 }
