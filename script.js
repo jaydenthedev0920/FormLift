@@ -1,4 +1,7 @@
-// ===== FORMLIFT JAVASCRIPT =====
+async function handleLogout() {
+    showLoading();
+    
+    const { error// ===== FORMLIFT JAVASCRIPT =====
 
 // Configuration
 const API_URL = 'https://formlift-engine.jtho09200920.workers.dev';
@@ -464,16 +467,47 @@ function capitalize(str) {
 document.addEventListener('DOMContentLoaded', () => {
     console.log('App loading...');
     
-    // Start splash animation first
-    initSplash();
+    // Check if this is a page refresh (performance.navigation is deprecated but works)
+    // Or use newer API: performance.getEntriesByType('navigation')[0].type
+    const perfData = performance.getEntriesByType('navigation')[0];
+    const isRefresh = perfData && perfData.type === 'reload';
     
-    // Initialize auth and app after splash completes
-    setTimeout(() => {
-        console.log('Initializing auth...');
+    if (!isRefresh) {
+        // New tab/window - show splash
+        initSplash();
+        
+        // Initialize auth and app after splash completes
+        setTimeout(() => {
+            console.log('Initializing auth...');
+            initAuth();
+            updateHistoryDisplay();
+            
+            // Load stats from localStorage
+            const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
+            const workoutCountEl = document.getElementById('workoutCount');
+            if (workoutCountEl) {
+                workoutCountEl.textContent = history.length;
+            }
+            
+            loadSettings();
+        }, 4500); // Must match splash timeout
+    } else {
+        // Page refresh - skip splash
+        const splashScreen = document.getElementById('splashScreen');
+        const mainAppContent = document.getElementById('mainAppContent');
+        
+        if (splashScreen) {
+            splashScreen.style.display = 'none';
+        }
+        if (mainAppContent) {
+            mainAppContent.classList.remove('app-hidden');
+            mainAppContent.classList.add('app-visible');
+        }
+        
+        // Initialize immediately
         initAuth();
         updateHistoryDisplay();
         
-        // Load stats from localStorage
         const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
         const workoutCountEl = document.getElementById('workoutCount');
         if (workoutCountEl) {
@@ -481,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         loadSettings();
-    }, 4500); // Must match splash timeout
+    }
 });
 
 // ===== PR TRACKER =====
