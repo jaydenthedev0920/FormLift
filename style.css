@@ -439,3 +439,43 @@ video {
     .cta-buttons { flex-direction: column; }
     .logo-text { font-size: 36px; }
 }
+/* ===== OFFLINE SCREEN ===== */
+.offline-body {
+    background: var(--bg-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.offline-container {
+    text-align: center;
+    padding: 40px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.offline-logo {
+    font-size: 48px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.offline-subtitle {
+    font-size: 22px;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.offline-desc {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+}
+
+
