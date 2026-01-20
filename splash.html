@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FormLift - Splash</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+        }
+
+        #splashScreen.hidden {
+            animation: fadeOut 0.8s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .droplet {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            top: 50%;
+            right: 100%;
+            transform: translateY(-50%);
+            animation: dropletTravel 2s ease-in-out forwards;
+        }
+
+        @keyframes dropletTravel {
+            0% {
+                right: -150px;
+                opacity: 0;
+                filter: drop-shadow(0 0 20px rgba(0, 255, 135, 0.6));
+            }
+            10% {
+                opacity: 1;
+            }
+            60% {
+                right: 80%;
+                filter: drop-shadow(0 0 40px rgba(0, 255, 135, 0.9));
+                transform: translateY(-50%) scale(1);
+            }
+            80% {
+                right: 80%;
+                opacity: 1;
+                transform: translateY(-50%) scale(1.2);
+            }
+            100% {
+                right: 80%;
+                opacity: 0;
+                transform: translateY(-50%) scale(0.1);
+                filter: drop-shadow(0 0 100px rgba(0, 255, 135, 1));
+            }
+        }
+
+        .droplet svg {
+            width: 100%;
+            height: 100%;
+            animation: dropletRotate 2s ease-in-out;
+        }
+
+        @keyframes dropletRotate {
+            0% { 
+                transform: rotate(-30deg); 
+            }
+            50% { 
+                transform: rotate(10deg) scale(1.05); 
+            }
+            70% {
+                transform: rotate(0deg) scale(1);
+            }
+            100% { 
+                transform: rotate(0deg) scale(0.5); 
+            }
+        }
+
+        .logo-text {
+            position: absolute;
+            font-size: 72px;
+            font-weight: 900;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #00ff87 0%, #00d4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 30px rgba(0, 255, 135, 0.8));
+            opacity: 0;
+        }
+
+        .logo-text.draw {
+            animation: textReveal 1.8s 1.6s ease-out forwards;
+        }
+
+        @keyframes textReveal {
+            0% {
+                opacity: 0;
+                letter-spacing: 20px;
+                filter: drop-shadow(0 0 5px rgba(0, 255, 135, 0.3)) blur(10px);
+            }
+            50% {
+                opacity: 1;
+                letter-spacing: 5px;
+                filter: drop-shadow(0 0 20px rgba(0, 255, 135, 0.6)) blur(2px);
+            }
+            100% {
+                opacity: 1;
+                letter-spacing: -2px;
+                filter: drop-shadow(0 0 30px rgba(0, 255, 135, 0.9)) blur(0px);
+            }
+        }
+
+        .trail {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 255, 135, 0.6), transparent);
+            pointer-events: none;
+            animation: trailFade 0.8s ease-out forwards;
+        }
+
+        @keyframes trailFade {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .splash-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ff87, #00d4ff);
+            opacity: 0;
+            animation: particleExplode 1s 1.8s ease-out forwards;
+        }
+
+        @keyframes particleExplode {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
+
+        /* Main app container */
+        #mainApp {
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        #mainApp.visible {
+            opacity: 1;
+        }
+
+        /* Auth Modal */
+        .auth-container {
+            max-width: 450px;
+            margin: 100px auto;
+            padding: 40px;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-container h2 {
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-size: 32px;
+        }
+
+        .auth-container p {
+            color: #a0a0a0;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ffffff;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            background: #0a0a0a;
+            border: 2px solid #2a2a2a;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #ffffff;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #00ff87;
+            background: rgba(0, 255, 135, 0.05);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #00ff87;
+            color: #0a0a0a;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 255, 135, 0.4);
+        }
+
+        .switch-auth {
+            text-align: center;
+            margin-top: 20px;
+            color: #a0a0a0;
+        }
+
+        .switch-auth a {
+            color: #00ff87;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .switch-auth a:hover {
+            text-decoration: underline;
+        }
+
+        /* Home Page */
+        .home-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .home-container h1 {
+            font-size: 56px;
+            font-weight: 900;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .home-container p {
+            font-size: 20px;
+            color: #a0a0a0;
+            margin-bottom: 40px;
+        }
+
+        .logout-btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: 2px solid #2a2a2a;
+            color: #ffffff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .logout-btn:hover {
+            border-color: #00ff87;
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splashScreen">
+        <div class="droplet" id="droplet">
+            <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="dropGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00ff87;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <path d="M50,10 C50,10 20,45 20,70 C20,88 33,100 50,100 C67,100 80,88 80,70 C80,45 50,10 50,10 Z" 
+                      fill="url(#dropGradient)" 
+                      filter="url(#glow)"/>
+                <ellipse cx="40" cy="50" rx="8" ry="12" fill="rgba(255,255,255,0.3)"/>
+            </svg>
+        </div>
+        
+        <div id="particles"></div>
+        <div class="logo-text" id="logoText">FormLift</div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp">
+        <!-- Auth Page -->
+        <div id="authPage" style="display: none;">
+            <div class="auth-container">
+                <div id="loginForm">
+                    <h2>Welcome Back</h2>
+                    <p>Sign in to continue to FormLift</p>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn" onclick="handleLogin()">Sign In</button>
+                    <div class="switch-auth">
+                        Don't have an account? <a onclick="switchToSignup()">Sign up</a>
+                    </div>
+                </div>
+
+                <div id="signupForm" style="display: none;">
+                    <h2>Get Started</h2>
+                    <p>Create your FormLift account</p>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signupEmail" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signupPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn" onclick="handleSignup()">Create Account</button>
+                    <div class="switch-auth">
+                        Already have an account? <a onclick="switchToLogin()">Sign in</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Page -->
+        <div id="homePage" style="display: none;">
+            <div class="home-container">
+                <h1>Welcome to FormLift</h1>
+                <p>Your AI Lifting Coach</p>
+                <p style="color: #666; margin-bottom: 40px;">Logged in as: <span id="userEmail"></span></p>
+                <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Create particle explosion
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 12; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'splash-particle';
+            const angle = (i / 12) * Math.PI * 2;
+            const distance = 80 + Math.random() * 40;
+            particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+            particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+            particle.style.left = '80%';
+            particle.style.top = '50%';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Trigger text drawing animation
+        setTimeout(() => {
+            document.getElementById('logoText').classList.add('draw');
+        }, 100);
+
+        // Check if user is logged in
+        const currentUser = localStorage.getItem('formlift_user');
+
+        // Show splash animation then transition
+        setTimeout(() => {
+            document.getElementById('splashScreen').classList.add('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('mainApp').classList.add('visible');
+                
+                if (currentUser) {
+                    document.getElementById('homePage').style.display = 'block';
+                    document.getElementById('userEmail').textContent = currentUser;
+                } else {
+                    document.getElementById('authPage').style.display = 'block';
+                }
+            }, 800);
+        }, 3800);
+
+        function switchToSignup() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+        }
+
+        function switchToLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('signupForm').style.display = 'none';
+        }
+
+        function handleLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            localStorage.setItem('formlift_user', email);
+            location.reload();
+        }
+
+        function handleSignup() {
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            if (!email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+
+            localStorage.setItem('formlift_user', email);
+            location.reload();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('formlift_user');
+            sessionStorage.removeItem('formlift_splash_shown');
+            location.reload();
+        }
+    </script>
+</body>
+</html>
