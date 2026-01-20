@@ -11,22 +11,41 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavTouchHack();
     initAuthModal();
     initVideoUpload();
-    enforceAuthGate();
 });
 
-/* ===== AUTH GATE ===== */
-/* If no "formliftUser" in localStorage → force auth modal open */
+/* ============================================================
+   AUTH GATE — FIXED FOR iOS PWA
+   ============================================================ */
 
 function enforceAuthGate() {
-    const user = localStorage.getItem('formliftUser');
+    let user = localStorage.getItem('formliftUser');
+
+    // iOS PWA returns "null" (string) instead of null
+    if (user === "null" || user === "" || user === undefined || user === null) {
+        user = null;
+    }
+
     const authModal = document.getElementById('authModal');
 
-    if (!user && authModal) {
+    if (!user) {
         openAuthModal();
+
+        // Disable navigation until logged in
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = "0.4";
+        });
+    } else {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = "1";
+        });
     }
 }
 
-/* ===== SPLASH SCREEN ===== */
+/* ============================================================
+   SPLASH SCREEN — FIXED TIMING + NO POPPING
+   ============================================================ */
 
 function initSplash() {
     const splashScreen = document.getElementById('splashScreen');
@@ -38,6 +57,12 @@ function initSplash() {
 
     splashScreen.style.display = 'flex';
     splashScreen.classList.remove('splash-hidden');
+
+    // Delay ring animation start slightly to avoid "pop"
+    setTimeout(() => {
+        document.querySelector('.rings-container').style.opacity = "1";
+        document.querySelector('.rings-container').style.transform = "scale(0.5)";
+    }, 50);
 
     // Particle burst after rings complete (~2.6s)
     setTimeout(() => {
@@ -58,12 +83,12 @@ function initSplash() {
         }
     }, 2600);
 
-    // Show logo text
+    // Show logo text AFTER rings finish
     setTimeout(() => {
         if (logoText) {
             logoText.classList.add('show');
         }
-    }, 2800);
+    }, 3000);
 
     // Hide splash, show app
     setTimeout(() => {
@@ -77,21 +102,26 @@ function initSplash() {
 
             // iOS PWA safety: ensure clicks are enabled
             document.body.style.pointerEvents = 'auto';
+
+            // AUTH CHECK MUST RUN HERE FOR IOS PWA
+            enforceAuthGate();
+
         }, 800);
-    }, 5200);
+    }, 5500);
 }
 
-/* ===== NAVIGATION (INLINE HANDLERS + iOS TOUCH FIX) ===== */
+/* ============================================================
+   NAVIGATION — iOS PWA TOUCH FIX
+   ============================================================ */
 
 function initNavTouchHack() {
     const navButtons = document.querySelectorAll('.nav-btn');
     navButtons.forEach(btn => {
-        // iOS PWA: ensure element is treated as interactive
         btn.addEventListener('touchstart', () => {}, { passive: true });
     });
 }
 
-// Called from HTML: onclick="showSection('home')" etc.
+// Called from HTML onclick="showSection('home')"
 function showSection(sectionKey) {
     const map = {
         home: 'home-section',
@@ -105,17 +135,12 @@ function showSection(sectionKey) {
 
     const sections = document.querySelectorAll('.content');
     sections.forEach(sec => {
-        if (sec.id === targetId) {
-            sec.classList.add('active');
-        } else {
-            sec.classList.remove('active');
-        }
+        sec.classList.toggle('active', sec.id === targetId);
     });
 
     const navButtons = document.querySelectorAll('.nav-btn');
     navButtons.forEach(btn => btn.classList.remove('active'));
 
-    // Match by text content
     navButtons.forEach(btn => {
         const text = btn.textContent.trim().toLowerCase();
         if (
@@ -131,7 +156,9 @@ function showSection(sectionKey) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ===== AUTH MODAL LOGIC ===== */
+/* ============================================================
+   AUTH MODAL — WITH UNDERLINE FIX
+   ============================================================ */
 
 function initAuthModal() {
     const authModal = document.getElementById('authModal');
@@ -140,17 +167,17 @@ function initAuthModal() {
 
     if (!authModal) return;
 
-    // Close on background click
-    authModal.addEventListener('click', (e) => {
-        if (e.target === authModal) {
-            closeAuthModal();
-        }
+    // Underline hover/click for auth links
+    document.querySelectorAll('.switch-auth a').forEach(link => {
+        link.style.cursor = "pointer";
+        link.addEventListener('mouseenter', () => link.style.textDecoration = "underline");
+        link.addEventListener('mouseleave', () => link.style.textDecoration = "none");
+        link.addEventListener('touchstart', () => link.style.textDecoration = "underline", { passive: true });
     });
 
-    // Ensure forms exist
-    if (loginForm && signupForm) {
-        // nothing extra here yet
-    }
+    authModal.addEventListener('click', (e) => {
+        if (e.target === authModal) closeAuthModal();
+    });
 }
 
 function openAuthModal() {
@@ -165,44 +192,34 @@ function closeAuthModal() {
     authModal.classList.remove('active');
 }
 
-// Switch between login and signup views
 function switchToSignup() {
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    if (!loginForm || !signupForm) return;
-
-    loginForm.style.display = 'none';
-    signupForm.style.display = 'block';
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('signupForm').style.display = 'block';
 }
 
 function switchToLogin() {
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    if (!loginForm || !signupForm) return;
-
-    signupForm.style.display = 'none';
-    loginForm.style.display = 'block';
+    document.getElementById('signupForm').style.display = 'none';
+    document.getElementById('loginForm').style.display = 'block';
 }
 
-// Fake login/signup handlers (replace with Supabase later)
 function handleLogin() {
-    const email = document.getElementById('loginEmail')?.value.trim();
-    const password = document.getElementById('loginPassword')?.value.trim();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
 
     if (!email || !password) {
         alert('Enter email and password');
         return;
     }
 
-    // TODO: replace with real Supabase auth
     localStorage.setItem('formliftUser', email);
     closeAuthModal();
+    enforceAuthGate();
 }
 
 function handleSignup() {
-    const email = document.getElementById('signupEmail')?.value.trim();
-    const password = document.getElementById('signupPassword')?.value.trim();
-    const confirm = document.getElementById('signupPasswordConfirm')?.value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value.trim();
+    const confirm = document.getElementById('signupPasswordConfirm').value.trim();
 
     if (!email || !password || !confirm) {
         alert('Fill out all fields');
@@ -214,12 +231,14 @@ function handleSignup() {
         return;
     }
 
-    // TODO: replace with real Supabase auth
     localStorage.setItem('formliftUser', email);
     closeAuthModal();
+    enforceAuthGate();
 }
 
-/* ===== VIDEO UPLOAD ===== */
+/* ============================================================
+   VIDEO UPLOAD
+   ============================================================ */
 
 function initVideoUpload() {
     const uploadArea = document.getElementById('uploadArea');
@@ -237,13 +256,8 @@ function initVideoUpload() {
         videoPreview.style.display = 'block';
     }
 
-    uploadArea.addEventListener('click', () => {
-        fileInput.click();
-    });
-
-    fileInput.addEventListener('change', (e) => {
-        handleFiles(e.target.files);
-    });
+    uploadArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -258,36 +272,30 @@ function initVideoUpload() {
     uploadArea.addEventListener('drop', (e) => {
         e.preventDefault();
         uploadArea.classList.remove('dragover');
-        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            handleFiles(e.dataTransfer.files);
-        }
+        if (e.dataTransfer.files.length > 0) handleFiles(e.dataTransfer.files);
     });
 }
 
-/* ===== WORKOUT GENERATOR (STUB) ===== */
+/* ============================================================
+   WORKOUT GENERATOR (STUB)
+   ============================================================ */
 
 function generateWorkout() {
-    const focus = document.getElementById('workoutFocus')?.value || 'fullbody';
-    const time = document.getElementById('workoutTime')?.value || '60';
-    const level = document.getElementById('experienceLevel')?.value || 'intermediate';
-    const equipment = document.getElementById('equipment')?.value || 'full';
+    const focus = document.getElementById('workoutFocus').value;
+    const time = document.getElementById('workoutTime').value;
+    const level = document.getElementById('experienceLevel').value;
+    const equipment = document.getElementById('equipment').value;
     const result = document.getElementById('workoutResult');
 
-    if (!result) return;
-
-    // Placeholder content — you can wire AI later
     result.innerHTML = `
         <div class="exercise">
             <div class="exercise-name">${focus.toUpperCase()} Session</div>
             <div class="exercise-details">
-                ${time} min • ${level} • ${equipment.replace(/(^\w)/, c => c.toUpperCase())}
+                ${time} min • ${level} • ${equipment}
             </div>
         </div>
     `;
 
     const countEl = document.getElementById('workoutCount');
-    if (countEl) {
-        const current = parseInt(countEl.textContent || '0', 10) || 0;
-        countEl.textContent = current + 1;
-    }
+    countEl.textContent = parseInt(countEl.textContent) + 1;
 }
