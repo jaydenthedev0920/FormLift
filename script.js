@@ -23,7 +23,7 @@ function initSplash() {
     const particlesContainer = document.getElementById('splashParticles');
     const logoText = document.getElementById('logoText');
     
-    console.log('Splash init started');
+    console.log('Splash init started - Rings animation');
     console.log('Logo text element:', logoText);
     
     // Make sure splash is visible
@@ -38,46 +38,39 @@ function initSplash() {
         mainAppContent.classList.remove('app-visible');
     }
     
-    // Create particle explosion at CENTER of screen where droplet ends
-    if (particlesContainer) {
-        for (let i = 0; i < 12; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'splash-particle';
-            const angle = (i / 12) * Math.PI * 2;
-            const distance = 80 + Math.random() * 40;
-            particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
-            particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
-            particle.style.left = '50%';
-            particle.style.top = '50%';
-            particlesContainer.appendChild(particle);
+    // Create particle burst when rings complete (at 2.5s)
+    setTimeout(() => {
+        if (particlesContainer) {
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'splash-particle';
+                const angle = (i / 20) * Math.PI * 2;
+                const distance = 100 + Math.random() * 60;
+                particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+                particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+                particle.style.left = '50%';
+                particle.style.top = '50%';
+                particlesContainer.appendChild(particle);
+            }
         }
-    }
+    }, 2500);
 
-    // Trigger text drawing animation - multiple attempts to ensure it works
+    // Show text after rings complete
     if (logoText) {
-        // Immediate attempt
         setTimeout(() => {
             console.log('Text animation starting - adding draw class');
             logoText.classList.add('draw');
-            console.log('Draw class added, classList:', logoText.classList.toString());
-        }, 100);
+            console.log('Draw class added');
+        }, 2800);
         
-        // Backup attempt
-        setTimeout(() => {
-            if (!logoText.classList.contains('draw')) {
-                console.log('Backup: Adding draw class');
-                logoText.classList.add('draw');
-            }
-        }, 500);
-        
-        // Force show as fallback
+        // Fallback
         setTimeout(() => {
             console.log('Forcing text visibility');
             logoText.style.opacity = '1';
-        }, 2500);
+        }, 3200);
     }
 
-    // Hide splash and show main app after animation
+    // Hide splash and show main app
     setTimeout(() => {
         console.log('Hiding splash');
         if (splashScreen) {
@@ -94,7 +87,7 @@ function initSplash() {
                 mainAppContent.classList.add('app-visible');
             }
         }, 800);
-    }, 4500);
+    }, 5000);
 }
 
 // ===== AUTH FUNCTIONS =====
@@ -512,7 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             loadSettings();
-        }, 4500); // Must match splash timeout
+        }, 5000); // Must match splash timeout
     } else {
         // Page refresh - skip splash
         const splashScreen = document.getElementById('splashScreen');
