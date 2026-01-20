@@ -1,7 +1,7 @@
 // ===== FORMLIFT JAVASCRIPT =====
 
 // Configuration
-const API_URL = 'https://formlift-engine.YOUR-USERNAME.workers.dev'; // REPLACE WITH YOUR CLOUDFLARE WORKER URL
+const API_URL = 'https://formlift-engine.jtho09200920.workers.dev';
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://nmmqfieeguldqouynhze.supabase.co';
