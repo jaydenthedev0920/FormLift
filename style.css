@@ -871,7 +871,7 @@ footer {
     }
 }
 
-/* Logo text in splash */
+/* Splash logo text — stays transparent, no background */
 
 .logo-text {
     position: absolute;
@@ -885,6 +885,7 @@ footer {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    color: transparent;
     filter: drop-shadow(0 0 30px rgba(0, 255, 135, 0.8));
     opacity: 0;
     z-index: 10;
