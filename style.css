@@ -779,13 +779,14 @@ footer {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 9999;
     background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
     transition: opacity 0.8s ease;
+    overflow: hidden;
 }
 
 .splash-container.splash-hidden {
@@ -798,9 +799,10 @@ footer {
     width: 80px;
     height: 80px;
     top: 50%;
-    right: 100%;
+    right: -150px;
     transform: translateY(-50%);
-    animation: dropletTravel 2s ease-in-out forwards;
+    animation: dropletTravel 2.5s ease-in-out forwards;
+    will-change: transform, opacity, filter;
 }
 
 @keyframes dropletTravel {
@@ -809,21 +811,21 @@ footer {
         opacity: 0;
         filter: drop-shadow(0 0 20px rgba(0, 255, 135, 0.6));
     }
-    10% {
+    15% {
         opacity: 1;
     }
-    60% {
-        right: 80%;
+    65% {
+        right: calc(100% - 150px);
         filter: drop-shadow(0 0 40px rgba(0, 255, 135, 0.9));
         transform: translateY(-50%) scale(1);
     }
-    80% {
-        right: 80%;
+    85% {
+        right: calc(100% - 150px);
         opacity: 1;
-        transform: translateY(-50%) scale(1.2);
+        transform: translateY(-50%) scale(1.3);
     }
     100% {
-        right: 80%;
+        right: calc(100% - 150px);
         opacity: 0;
         transform: translateY(-50%) scale(0.1);
         filter: drop-shadow(0 0 100px rgba(0, 255, 135, 1));
@@ -833,7 +835,7 @@ footer {
 .droplet svg {
     width: 100%;
     height: 100%;
-    animation: dropletRotate 2s ease-in-out;
+    animation: dropletRotate 2.5s ease-in-out;
 }
 
 @keyframes dropletRotate {
@@ -843,7 +845,7 @@ footer {
     50% { 
         transform: rotate(10deg) scale(1.05); 
     }
-    70% {
+    75% {
         transform: rotate(0deg) scale(1);
     }
     100% { 
@@ -862,10 +864,11 @@ footer {
     background-clip: text;
     filter: drop-shadow(0 0 30px rgba(0, 255, 135, 0.8));
     opacity: 0;
+    will-change: opacity, letter-spacing, filter;
 }
 
 .logo-text.draw {
-    animation: textReveal 1.8s 1.6s ease-out forwards;
+    animation: textReveal 2s 2s ease-out forwards;
 }
 
 @keyframes textReveal {
@@ -893,7 +896,7 @@ footer {
     border-radius: 50%;
     background: linear-gradient(135deg, #00ff87, #00d4ff);
     opacity: 0;
-    animation: particleExplode 1s 1.8s ease-out forwards;
+    animation: particleExplode 1.2s 2.2s ease-out forwards;
 }
 
 @keyframes particleExplode {
@@ -911,11 +914,13 @@ footer {
 .app-hidden {
     opacity: 0;
     pointer-events: none;
+    display: none !important;
 }
 
 .app-visible {
     opacity: 1;
     pointer-events: auto;
+    display: block !important;
     animation: appFadeIn 0.5s ease;
 }
 
