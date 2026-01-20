@@ -1,7 +1,7 @@
 // ===== FORMLIFT JAVASCRIPT =====
 
 // Configuration
-const API_URL = 'https://formlift-engine.YOUR-USERNAME.workers.dev'; // REPLACE WITH YOUR CLOUDFLARE WORKER URL
+const API_URL = 'formlift-engine.jtho09200920.workers.dev'; // REPLACE WITH YOUR CLOUDFLARE WORKER URL
 
 // ===== NAVIGATION =====
 function showSection(section) {
@@ -283,3 +283,4 @@ document.addEventListener('DOMContentLoaded', () => {
     const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
     document.getElementById('workoutCount').textContent = history.length;
 });
+
