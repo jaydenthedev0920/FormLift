@@ -13,6 +13,39 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Current user
 let currentUser = null;
 
+// ===== SPLASH SCREEN =====
+function initSplash() {
+    // Create particle explosion
+    const particlesContainer = document.getElementById('splashParticles');
+    for (let i = 0; i < 12; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'splash-particle';
+        const angle = (i / 12) * Math.PI * 2;
+        const distance = 80 + Math.random() * 40;
+        particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+        particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+        particle.style.left = '80%';
+        particle.style.top = '50%';
+        particlesContainer.appendChild(particle);
+    }
+
+    // Trigger text drawing animation
+    setTimeout(() => {
+        document.getElementById('logoText').classList.add('draw');
+    }, 100);
+
+    // Hide splash and show main app after animation
+    setTimeout(() => {
+        document.getElementById('splashScreen').classList.add('splash-hidden');
+        
+        setTimeout(() => {
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('mainAppContent').classList.remove('app-hidden');
+            document.getElementById('mainAppContent').classList.add('app-visible');
+        }, 800);
+    }, 3800);
+}
+
 // ===== AUTH FUNCTIONS =====
 async function initAuth() {
     // Check if user is already logged in
@@ -364,26 +397,30 @@ async function analyzeForm() {
 }
 
 // ===== DRAG AND DROP FOR VIDEO =====
-const uploadArea = document.getElementById('uploadArea');
+document.addEventListener('DOMContentLoaded', () => {
+    const uploadArea = document.getElementById('uploadArea');
+    
+    if (uploadArea) {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, preventDefaults, false);
+        });
 
-['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-    uploadArea.addEventListener(eventName, preventDefaults, false);
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+        });
+
+        uploadArea.addEventListener('drop', handleDrop, false);
+    }
 });
 
 function preventDefaults(e) {
     e.preventDefault();
     e.stopPropagation();
 }
-
-['dragenter', 'dragover'].forEach(eventName => {
-    uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
-});
-
-['dragleave', 'drop'].forEach(eventName => {
-    uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
-});
-
-uploadArea.addEventListener('drop', handleDrop, false);
 
 function handleDrop(e) {
     const dt = e.dataTransfer;
@@ -399,14 +436,20 @@ function capitalize(str) {
 
 // ===== INITIALIZE APP =====
 document.addEventListener('DOMContentLoaded', () => {
-    initAuth();
-    updateHistoryDisplay();
+    // Start splash animation
+    initSplash();
     
-    // Load stats from localStorage
-    const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
-    document.getElementById('workoutCount').textContent = history.length;
-    
-    loadSettings();
+    // Initialize auth after splash
+    setTimeout(() => {
+        initAuth();
+        updateHistoryDisplay();
+        
+        // Load stats from localStorage
+        const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
+        document.getElementById('workoutCount').textContent = history.length;
+        
+        loadSettings();
+    }, 3800);
 });
 
 // ===== PR TRACKER =====
