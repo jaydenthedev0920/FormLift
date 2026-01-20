@@ -23,6 +23,8 @@ function initSplash() {
     const particlesContainer = document.getElementById('splashParticles');
     const logoText = document.getElementById('logoText');
     
+    console.log('Splash init started');
+    
     // Make sure splash is visible
     if (splashScreen) {
         splashScreen.style.display = 'flex';
@@ -35,7 +37,7 @@ function initSplash() {
         mainAppContent.classList.remove('app-visible');
     }
     
-    // Create particle explosion
+    // Create particle explosion at CENTER of screen where droplet ends
     if (particlesContainer) {
         for (let i = 0; i < 12; i++) {
             const particle = document.createElement('div');
@@ -44,7 +46,7 @@ function initSplash() {
             const distance = 80 + Math.random() * 40;
             particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
             particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
-            particle.style.left = '80%';
+            particle.style.left = '50%';
             particle.style.top = '50%';
             particlesContainer.appendChild(particle);
         }
@@ -52,6 +54,7 @@ function initSplash() {
 
     // Trigger text drawing animation
     setTimeout(() => {
+        console.log('Text animation starting');
         if (logoText) {
             logoText.classList.add('draw');
         }
@@ -59,11 +62,13 @@ function initSplash() {
 
     // Hide splash and show main app after animation
     setTimeout(() => {
+        console.log('Hiding splash');
         if (splashScreen) {
             splashScreen.classList.add('splash-hidden');
         }
         
         setTimeout(() => {
+            console.log('Showing main app');
             if (splashScreen) {
                 splashScreen.style.display = 'none';
             }
@@ -72,7 +77,7 @@ function initSplash() {
                 mainAppContent.classList.add('app-visible');
             }
         }, 800);
-    }, 4500); // Increased from 3800 to 4500
+    }, 4500);
 }
 
 // ===== AUTH FUNCTIONS =====
