@@ -1,13 +1,58 @@
 // ===== FORMLIFT MAIN SCRIPT =====
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Hide app content immediately on all platforms (web + PWA)
+    const mainAppContent = document.getElementById('mainAppContent');
+    if (mainAppContent) {
+        mainAppContent.style.display = 'none';
+        mainAppContent.classList.add('app-hidden');
+    }
+
     initSplash();
     initNavigation();
     initAuthModals();
     initUserMenu();
     initVideoUpload();
     initPRTracker();
+    enforceAuthGate();
 });
+
+/* ===== AUTH GATE ===== */
+/* Simple localStorage-based gate:
+   - If "formliftUser" not set → force user into auth section
+   - You can later replace this with real Supabase auth
+*/
+
+function enforceAuthGate() {
+    const user = localStorage.getItem('formliftUser');
+    const authSection = document.getElementById('authSection');
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const sections = document.querySelectorAll('.content');
+
+    if (!sections.length) return;
+
+    if (!user) {
+        // No account → show auth section only
+        sections.forEach(sec => {
+            if (authSection && sec.id === authSection.id) {
+                sec.classList.add('active');
+            } else {
+                sec.classList.remove('active');
+            }
+        });
+
+        navButtons.forEach(btn => btn.classList.remove('active'));
+
+        // Optionally auto-open login modal if present
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal) {
+            loginModal.classList.add('active');
+        }
+    } else {
+        // User exists → leave navigation as-is
+        console.log('User detected in localStorage:', user);
+    }
+}
 
 /* ===== SPLASH SCREEN ===== */
 
@@ -22,11 +67,9 @@ function initSplash() {
         return;
     }
 
-    // Initial state: show splash, hide app
+    // Ensure splash is visible on all platforms
     splashScreen.style.display = 'flex';
     splashScreen.classList.remove('splash-hidden');
-    mainAppContent.style.display = 'none';
-    mainAppContent.classList.add('app-hidden');
 
     console.log('Starting FormLift splash sequence');
 
@@ -50,7 +93,7 @@ function initSplash() {
         }
     }, 2600);
 
-    // Show logo text
+    // Show logo text with glow
     setTimeout(() => {
         console.log('Showing FormLift logo text');
         if (logoText) {
@@ -143,6 +186,28 @@ function initAuthModals() {
             }
         });
     });
+
+    // Example: fake auth success hook
+    const fakeLoginForm = document.getElementById('loginForm');
+    if (fakeLoginForm) {
+        fakeLoginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // In real app, replace with Supabase auth
+            localStorage.setItem('formliftUser', 'demo-user');
+            if (loginModal) loginModal.classList.remove('active');
+            enforceAuthGate();
+        });
+    }
+
+    const fakeSignupForm = document.getElementById('signupForm');
+    if (fakeSignupForm) {
+        fakeSignupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            localStorage.setItem('formliftUser', 'demo-user');
+            if (signupModal) signupModal.classList.remove('active');
+            enforceAuthGate();
+        });
+    }
 }
 
 /* ===== USER MENU ===== */
