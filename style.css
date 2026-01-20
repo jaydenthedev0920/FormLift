@@ -772,3 +772,181 @@ footer {
 .pr-delete:hover {
     background: rgba(255, 51, 102, 0.1);
 }
+
+/* ===== SPLASH SCREEN STYLES ===== */
+.splash-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    background: radial-gradient(circle at center, #1a1a1a 0%, #0a0a0a 100%);
+    transition: opacity 0.8s ease;
+}
+
+.splash-container.splash-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.droplet {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    top: 50%;
+    right: 100%;
+    transform: translateY(-50%);
+    animation: dropletTravel 2s ease-in-out forwards;
+}
+
+@keyframes dropletTravel {
+    0% {
+        right: -150px;
+        opacity: 0;
+        filter: drop-shadow(0 0 20px rgba(0, 255, 135, 0.6));
+    }
+    10% {
+        opacity: 1;
+    }
+    60% {
+        right: 80%;
+        filter: drop-shadow(0 0 40px rgba(0, 255, 135, 0.9));
+        transform: translateY(-50%) scale(1);
+    }
+    80% {
+        right: 80%;
+        opacity: 1;
+        transform: translateY(-50%) scale(1.2);
+    }
+    100% {
+        right: 80%;
+        opacity: 0;
+        transform: translateY(-50%) scale(0.1);
+        filter: drop-shadow(0 0 100px rgba(0, 255, 135, 1));
+    }
+}
+
+.droplet svg {
+    width: 100%;
+    height: 100%;
+    animation: dropletRotate 2s ease-in-out;
+}
+
+@keyframes dropletRotate {
+    0% { 
+        transform: rotate(-30deg); 
+    }
+    50% { 
+        transform: rotate(10deg) scale(1.05); 
+    }
+    70% {
+        transform: rotate(0deg) scale(1);
+    }
+    100% { 
+        transform: rotate(0deg) scale(0.5); 
+    }
+}
+
+.logo-text {
+    position: absolute;
+    font-size: 72px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #00ff87 0%, #00d4ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(0, 255, 135, 0.8));
+    opacity: 0;
+}
+
+.logo-text.draw {
+    animation: textReveal 1.8s 1.6s ease-out forwards;
+}
+
+@keyframes textReveal {
+    0% {
+        opacity: 0;
+        letter-spacing: 20px;
+        filter: drop-shadow(0 0 5px rgba(0, 255, 135, 0.3)) blur(10px);
+    }
+    50% {
+        opacity: 1;
+        letter-spacing: 5px;
+        filter: drop-shadow(0 0 20px rgba(0, 255, 135, 0.6)) blur(2px);
+    }
+    100% {
+        opacity: 1;
+        letter-spacing: -2px;
+        filter: drop-shadow(0 0 30px rgba(0, 255, 135, 0.9)) blur(0px);
+    }
+}
+
+.splash-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00ff87, #00d4ff);
+    opacity: 0;
+    animation: particleExplode 1s 1.8s ease-out forwards;
+}
+
+@keyframes particleExplode {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--tx), var(--ty)) scale(0);
+    }
+}
+
+/* Main app initially hidden */
+.app-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.app-visible {
+    opacity: 1;
+    pointer-events: auto;
+    animation: appFadeIn 0.5s ease;
+}
+
+@keyframes appFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive splash */
+@media (max-width: 768px) {
+    .logo-text {
+        font-size: 48px;
+    }
+    
+    .droplet {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-text {
+        font-size: 36px;
+    }
+    
+    .droplet {
+        width: 50px;
+        height: 50px;
+    }
+}
