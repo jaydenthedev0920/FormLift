@@ -23,71 +23,67 @@ function initSplash() {
     const particlesContainer = document.getElementById('splashParticles');
     const logoText = document.getElementById('logoText');
     
-    console.log('Splash init started - Rings animation');
-    console.log('Logo text element:', logoText);
+    console.log('Starting rings splash animation');
     
-    // Make sure splash is visible
+    // Ensure splash is visible
     if (splashScreen) {
         splashScreen.style.display = 'flex';
         splashScreen.classList.remove('splash-hidden');
     }
     
-    // Make sure main app is hidden
+    // Hide main app
     if (mainAppContent) {
-        mainAppContent.classList.add('app-hidden');
-        mainAppContent.classList.remove('app-visible');
+        mainAppContent.style.display = 'none';
     }
     
-    // Create particle burst when rings complete (at 2.5s)
+    // After rings complete (2.6s), burst particles
     setTimeout(() => {
+        console.log('Creating particle burst');
         if (particlesContainer) {
-            for (let i = 0; i < 20; i++) {
+            particlesContainer.innerHTML = ''; // Clear any existing
+            for (let i = 0; i < 24; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'splash-particle';
-                const angle = (i / 20) * Math.PI * 2;
-                const distance = 100 + Math.random() * 60;
+                const angle = (i / 24) * Math.PI * 2;
+                const distance = 120 + Math.random() * 50;
                 particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
                 particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
                 particle.style.left = '50%';
                 particle.style.top = '50%';
                 particlesContainer.appendChild(particle);
+                
+                // Trigger animation
+                setTimeout(() => particle.classList.add('burst'), 10);
             }
         }
-    }, 2500);
+    }, 2600);
 
-    // Show text after rings complete
-    if (logoText) {
-        setTimeout(() => {
-            console.log('Text animation starting - adding draw class');
-            logoText.classList.add('draw');
-            console.log('Draw class added');
-        }, 2800);
-        
-        // Fallback
-        setTimeout(() => {
-            console.log('Forcing text visibility');
-            logoText.style.opacity = '1';
-        }, 3200);
-    }
-
-    // Hide splash and show main app
+    // Show text after particles start
     setTimeout(() => {
-        console.log('Hiding splash');
+        console.log('Showing FormLift text');
+        if (logoText) {
+            logoText.classList.add('show');
+        }
+    }, 2800);
+
+    // Hide splash, show app
+    setTimeout(() => {
+        console.log('Transitioning to app');
         if (splashScreen) {
             splashScreen.classList.add('splash-hidden');
         }
         
         setTimeout(() => {
-            console.log('Showing main app');
             if (splashScreen) {
                 splashScreen.style.display = 'none';
             }
             if (mainAppContent) {
+                mainAppContent.style.display = 'block';
                 mainAppContent.classList.remove('app-hidden');
                 mainAppContent.classList.add('app-visible');
             }
         }, 800);
-    }, 5000);
+    }, 5200);
 }
 
 // ===== AUTH FUNCTIONS =====
@@ -505,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             loadSettings();
-        }, 5000); // Must match splash timeout
+        }, 5200);
     } else {
         // Page refresh - skip splash
         const splashScreen = document.getElementById('splashScreen');
