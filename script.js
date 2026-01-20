@@ -312,98 +312,19 @@ async function analyzeForm() {
     const exercise = document.getElementById('exerciseType').value;
     const resultDiv = document.getElementById('formCheckResult');
     
-    resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Analyzing your form with AI...</p></div>';
-
-    // Simulate AI analysis (replace with actual API call when backend is ready)
-    setTimeout(() => {
-        const feedback = generateFormFeedback(exercise);
-        displayFormFeedback(feedback);
-        
-        // Update stats
-        const count = parseInt(document.getElementById('formCheckCount').textContent);
-        document.getElementById('formCheckCount').textContent = count + 1;
-    }, 3000);
-}
-
-function generateFormFeedback(exercise) {
-    // Sample feedback (will be replaced with real AI analysis)
-    const feedbackOptions = {
-        squat: {
-            score: Math.floor(Math.random() * 20) + 75,
-            feedback: [
-                { type: 'success', text: 'Good depth achieved - hitting parallel or below' },
-                { type: 'success', text: 'Neutral spine maintained throughout the movement' },
-                { type: 'warning', text: 'Slight knee valgus on ascent - focus on pushing knees out' },
-                { type: 'info', text: 'Consider a slightly wider stance for better stability' }
-            ]
-        },
-        deadlift: {
-            score: Math.floor(Math.random() * 20) + 75,
-            feedback: [
-                { type: 'success', text: 'Excellent hip hinge pattern' },
-                { type: 'warning', text: 'Bar drifts slightly forward - keep it closer to shins' },
-                { type: 'success', text: 'Strong lockout position' },
-                { type: 'info', text: 'Try engaging lats more before the pull' }
-            ]
-        },
-        bench: {
-            score: Math.floor(Math.random() * 20) + 75,
-            feedback: [
-                { type: 'success', text: 'Good bar path - straight vertical line' },
-                { type: 'success', text: 'Proper scapular retraction' },
-                { type: 'warning', text: 'Elbows flaring slightly - tuck them to 45 degrees' },
-                { type: 'info', text: 'Leg drive could be stronger - push through heels' }
-            ]
-        },
-        overhead: {
-            score: Math.floor(Math.random() * 20) + 75,
-            feedback: [
-                { type: 'success', text: 'Bar path is vertical - excellent' },
-                { type: 'warning', text: 'Slight lower back arch - engage core more' },
-                { type: 'success', text: 'Good lockout overhead' },
-                { type: 'info', text: 'Try moving head through after bar passes' }
-            ]
-        },
-        row: {
-            score: Math.floor(Math.random() * 20) + 75,
-            feedback: [
-                { type: 'success', text: 'Good torso angle maintained' },
-                { type: 'success', text: 'Pulling to correct position (lower chest)' },
-                { type: 'warning', text: 'Using some momentum - slow down the eccentric' },
-                { type: 'info', text: 'Retract scapula at the top of each rep' }
-            ]
-        }
-    };
-
-    return feedbackOptions[exercise] || feedbackOptions.squat;
-}
-
-function displayFormFeedback(feedback) {
-    const scoreColor = feedback.score >= 85 ? 'var(--success)' : 
-                      feedback.score >= 70 ? 'var(--warning)' : 'var(--error)';
-    
-    const html = `
-        <h3>Analysis Complete</h3>
-        <div style="text-align: center; margin: 32px 0;">
-            <div style="font-size: 72px; font-weight: 900; color: ${scoreColor};">
-                ${feedback.score}
-            </div>
-            <div style="color: var(--text-secondary); font-size: 18px; margin-top: 8px;">Form Score</div>
+    resultDiv.innerHTML = `
+        <div style="background: var(--bg-dark); padding: 40px; border-radius: 12px; text-align: center; border: 2px dashed var(--border);">
+            <div style="font-size: 48px; margin-bottom: 16px;">🚧</div>
+            <h3 style="margin-bottom: 12px;">Form Check Coming Soon</h3>
+            <p style="color: var(--text-secondary);">
+                AI video analysis is currently in development. This feature will analyze your lifting form 
+                and provide detailed feedback on technique, safety, and areas for improvement.
+            </p>
+            <p style="color: var(--text-muted); margin-top: 16px; font-size: 14px;">
+                For now, focus on generating awesome workouts! 💪
+            </p>
         </div>
-        ${feedback.feedback.map(f => `
-            <div class="feedback ${f.type === 'warning' ? 'warning' : f.type === 'error' ? 'error' : ''}">
-                <div class="feedback-title">
-                    ${f.type === 'success' ? '✓' : f.type === 'warning' ? '⚠' : 'ℹ'} 
-                    ${f.text}
-                </div>
-            </div>
-        `).join('')}
-        <button class="btn" style="margin-top: 24px;" onclick="document.getElementById('videoInput').click()">
-            Upload Another Video
-        </button>
     `;
-    
-    document.getElementById('formCheckResult').innerHTML = html;
 }
 
 // ===== DRAG AND DROP FOR VIDEO =====
