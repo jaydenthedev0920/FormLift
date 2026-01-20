@@ -15,35 +15,61 @@ let currentUser = null;
 
 // ===== SPLASH SCREEN =====
 function initSplash() {
-    // Create particle explosion
+    const splashScreen = document.getElementById('splashScreen');
+    const mainAppContent = document.getElementById('mainAppContent');
     const particlesContainer = document.getElementById('splashParticles');
-    for (let i = 0; i < 12; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'splash-particle';
-        const angle = (i / 12) * Math.PI * 2;
-        const distance = 80 + Math.random() * 40;
-        particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
-        particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
-        particle.style.left = '80%';
-        particle.style.top = '50%';
-        particlesContainer.appendChild(particle);
+    const logoText = document.getElementById('logoText');
+    
+    // Make sure splash is visible
+    if (splashScreen) {
+        splashScreen.style.display = 'flex';
+        splashScreen.classList.remove('splash-hidden');
+    }
+    
+    // Make sure main app is hidden
+    if (mainAppContent) {
+        mainAppContent.classList.add('app-hidden');
+        mainAppContent.classList.remove('app-visible');
+    }
+    
+    // Create particle explosion
+    if (particlesContainer) {
+        for (let i = 0; i < 12; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'splash-particle';
+            const angle = (i / 12) * Math.PI * 2;
+            const distance = 80 + Math.random() * 40;
+            particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+            particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+            particle.style.left = '80%';
+            particle.style.top = '50%';
+            particlesContainer.appendChild(particle);
+        }
     }
 
     // Trigger text drawing animation
     setTimeout(() => {
-        document.getElementById('logoText').classList.add('draw');
+        if (logoText) {
+            logoText.classList.add('draw');
+        }
     }, 100);
 
     // Hide splash and show main app after animation
     setTimeout(() => {
-        document.getElementById('splashScreen').classList.add('splash-hidden');
+        if (splashScreen) {
+            splashScreen.classList.add('splash-hidden');
+        }
         
         setTimeout(() => {
-            document.getElementById('splashScreen').style.display = 'none';
-            document.getElementById('mainAppContent').classList.remove('app-hidden');
-            document.getElementById('mainAppContent').classList.add('app-visible');
+            if (splashScreen) {
+                splashScreen.style.display = 'none';
+            }
+            if (mainAppContent) {
+                mainAppContent.classList.remove('app-hidden');
+                mainAppContent.classList.add('app-visible');
+            }
         }, 800);
-    }, 3800);
+    }, 4500); // Increased from 3800 to 4500
 }
 
 // ===== AUTH FUNCTIONS =====
@@ -436,20 +462,26 @@ function capitalize(str) {
 
 // ===== INITIALIZE APP =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Start splash animation
+    console.log('App loading...');
+    
+    // Start splash animation first
     initSplash();
     
-    // Initialize auth after splash
+    // Initialize auth and app after splash completes
     setTimeout(() => {
+        console.log('Initializing auth...');
         initAuth();
         updateHistoryDisplay();
         
         // Load stats from localStorage
         const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
-        document.getElementById('workoutCount').textContent = history.length;
+        const workoutCountEl = document.getElementById('workoutCount');
+        if (workoutCountEl) {
+            workoutCountEl.textContent = history.length;
+        }
         
         loadSettings();
-    }, 3800);
+    }, 4500); // Must match splash timeout
 });
 
 // ===== PR TRACKER =====
