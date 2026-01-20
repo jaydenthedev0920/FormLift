@@ -5,160 +5,335 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FormLift - Lift Smarter. Lift Safer.</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <header>
-        <div class="header-content">
-            <div>
-                <div class="logo">FormLift</div>
-                <div class="tagline">Lift Smarter. Lift Safer.</div>
-            </div>
-            <nav>
-                <button class="nav-btn active" onclick="showSection('home')">Home</button>
-                <button class="nav-btn" onclick="showSection('workout')">Workout</button>
-                <button class="nav-btn" onclick="showSection('formcheck')">Form Check</button>
-                <button class="nav-btn" onclick="showSection('history')">History</button>
-            </nav>
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="splash-container">
+        <div class="droplet" id="droplet">
+            <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="dropGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00ff87;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <path d="M50,10 C50,10 20,45 20,70 C20,88 33,100 50,100 C67,100 80,88 80,70 C80,45 50,10 50,10 Z" 
+                      fill="url(#dropGradient)" 
+                      filter="url(#glow)"/>
+                <ellipse cx="40" cy="50" rx="8" ry="12" fill="rgba(255,255,255,0.3)"/>
+            </svg>
         </div>
-    </header>
-
-    <!-- Hero Section -->
-    <div id="home-section" class="content active">
-        <div class="hero">
-            <h1>Your AI Lifting Coach</h1>
-            <p>Get personalized workouts and expert form analysis powered by AI</p>
-            <div class="cta-buttons">
-                <button class="btn-primary" onclick="showSection('workout')">
-                    <span>⚡</span> Generate Workout
-                </button>
-                <button class="btn-secondary" onclick="showSection('formcheck')">
-                    <span>📹</span> Check My Form
-                </button>
-            </div>
-        </div>
-
-        <div class="container">
-            <div class="grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="workoutCount">0</div>
-                    <div class="stat-label">Workouts Generated</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="formCheckCount">0</div>
-                    <div class="stat-label">Form Checks</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="prCount">0</div>
-                    <div class="stat-label">Personal Records</div>
-                </div>
-            </div>
-        </div>
+        
+        <div id="splashParticles"></div>
+        <div class="logo-text" id="logoText">FormLift</div>
     </div>
 
-    <!-- Workout Generator -->
-    <div id="workout-section" class="content">
-        <div class="container">
-            <div class="card">
-                <h2>Generate Your Workout</h2>
+    <!-- Main App Content -->
+    <div id="mainAppContent" class="app-hidden">
+        <header>
+            <div class="header-content">
+                <div>
+                    <div class="logo">FormLift</div>
+                    <div class="tagline">Lift Smarter. Lift Safer.</div>
+                </div>
+                <nav id="mainNav">
+                    <button class="nav-btn active" onclick="showSection('home')">Home</button>
+                    <button class="nav-btn" onclick="showSection('workout')">Workout</button>
+                    <button class="nav-btn" onclick="showSection('formcheck')">Form Check</button>
+                    <button class="nav-btn" onclick="showSection('history')">History</button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Auth Modal -->
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeAuthModal()">&times;</span>
                 
-                <div class="form-group">
-                    <label>Workout Focus</label>
-                    <select id="workoutFocus">
-                        <option value="push">Push (Chest, Shoulders, Triceps)</option>
-                        <option value="pull">Pull (Back, Biceps)</option>
-                        <option value="legs">Legs (Quads, Hamstrings, Glutes)</option>
-                        <option value="fullbody">Full Body</option>
-                        <option value="upper">Upper Body</option>
-                        <option value="lower">Lower Body</option>
-                        <option value="arms">Arms</option>
-                    </select>
+                <div id="loginForm" class="auth-form">
+                    <h2>Welcome Back</h2>
+                    <p class="subtitle">Sign in to continue to FormLift</p>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                    </div>
+                    <button class="btn" onclick="handleLogin()">Sign In</button>
+                    <div class="switch-auth">
+                        Don't have an account? <a onclick="switchToSignup()">Sign up</a>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Time Available</label>
-                    <select id="workoutTime">
-                        <option value="30">30 minutes</option>
-                        <option value="45">45 minutes</option>
-                        <option value="60" selected>60 minutes</option>
-                        <option value="90">90 minutes</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Experience Level</label>
-                    <select id="experienceLevel">
-                        <option value="beginner">Beginner</option>
-                        <option value="intermediate" selected>Intermediate</option>
-                        <option value="advanced">Advanced</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Equipment</label>
-                    <select id="equipment">
-                        <option value="full" selected>Full Gym (Barbells, Dumbbells, Machines)</option>
-                        <option value="dumbbells">Dumbbells Only</option>
-                        <option value="bodyweight">Bodyweight Only</option>
-                        <option value="home">Home Gym (Barbell, Dumbbells, Bench)</option>
-                    </select>
-                </div>
-
-                <button class="btn" onclick="generateWorkout()">Generate Workout</button>
-
-                <div id="workoutResult" class="workout-section"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Form Check -->
-    <div id="formcheck-section" class="content">
-        <div class="container">
-            <div class="card">
-                <h2>Form Check AI</h2>
-                <p class="subtitle">Upload a video of your lift for AI-powered form analysis</p>
-
-                <div class="form-group">
-                    <label>Exercise Type</label>
-                    <select id="exerciseType">
-                        <option value="squat">Squat</option>
-                        <option value="deadlift">Deadlift</option>
-                        <option value="bench">Bench Press</option>
-                        <option value="overhead">Overhead Press</option>
-                        <option value="row">Barbell Row</option>
-                    </select>
-                </div>
-
-                <div class="video-upload-area" id="uploadArea" onclick="document.getElementById('videoInput').click()">
-                    <div class="upload-icon">📹</div>
-                    <div class="upload-title">Upload Your Lift Video</div>
-                    <div class="upload-subtitle">Click to select or drag and drop</div>
-                    <div class="upload-hint">Max 50MB • MP4, MOV, or WebM</div>
-                </div>
-                <input type="file" id="videoInput" accept="video/*" style="display: none;" onchange="handleVideoUpload(event)">
-
-                <div id="videoPreview"></div>
-                <div id="formCheckResult"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- History -->
-    <div id="history-section" class="content">
-        <div class="container">
-            <div class="card">
-                <h2>Workout History</h2>
-                <div id="historyList">
-                    <p class="empty-state">No workouts yet. Generate your first workout!</p>
+                <div id="signupForm" class="auth-form" style="display: none;">
+                    <h2>Get Started</h2>
+                    <p class="subtitle">Create your FormLift account</p>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="signupEmail" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="signupPassword" placeholder="••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" id="signupPasswordConfirm" placeholder="••••••••">
+                    </div>
+                    <button class="btn" onclick="handleSignup()">Create Account</button>
+                    <div class="switch-auth">
+                        Already have an account? <a onclick="switchToLogin()">Sign in</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <footer>
-        <div class="footer-content">
-            <p>&copy; 2026 FormLift. All rights reserved.</p>
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Loading...</p>
         </div>
-    </footer>
+
+        <!-- Hero Section -->
+        <div id="home-section" class="content active">
+            <div class="hero">
+                <h1>Your AI Lifting Coach</h1>
+                <p>Get personalized workouts and expert form analysis powered by AI</p>
+                <div class="cta-buttons">
+                    <button class="btn-primary" onclick="showSection('workout')">
+                        <span>⚡</span> Generate Workout
+                    </button>
+                    <button class="btn-secondary" onclick="showSection('formcheck')">
+                        <span>📹</span> Check My Form
+                    </button>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="workoutCount">0</div>
+                        <div class="stat-label">Workouts Generated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="formCheckCount">0</div>
+                        <div class="stat-label">Form Checks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="prCount">0</div>
+                        <div class="stat-label">Personal Records</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workout Generator -->
+        <div id="workout-section" class="content">
+            <div class="container">
+                <div class="card">
+                    <h2>Generate Your Workout</h2>
+                    
+                    <div class="form-group">
+                        <label>Workout Focus</label>
+                        <select id="workoutFocus">
+                            <option value="push">Push (Chest, Shoulders, Triceps)</option>
+                            <option value="pull">Pull (Back, Biceps)</option>
+                            <option value="legs">Legs (Quads, Hamstrings, Glutes)</option>
+                            <option value="fullbody">Full Body</option>
+                            <option value="upper">Upper Body</option>
+                            <option value="lower">Lower Body</option>
+                            <option value="arms">Arms</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Time Available</label>
+                        <select id="workoutTime">
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60" selected>60 minutes</option>
+                            <option value="90">90 minutes</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Experience Level</label>
+                        <select id="experienceLevel">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate" selected>Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Equipment</label>
+                        <select id="equipment">
+                            <option value="full" selected>Full Gym (Barbells, Dumbbells, Machines)</option>
+                            <option value="dumbbells">Dumbbells Only</option>
+                            <option value="bodyweight">Bodyweight Only</option>
+                            <option value="home">Home Gym (Barbell, Dumbbells, Bench)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" onclick="generateWorkout()">Generate Workout</button>
+
+                    <div id="workoutResult" class="workout-section"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Check -->
+        <div id="formcheck-section" class="content">
+            <div class="container">
+                <div class="card">
+                    <h2>Form Check AI</h2>
+                    <p class="subtitle">Upload a video of your lift for AI-powered form analysis</p>
+
+                    <div class="form-group">
+                        <label>Exercise Type</label>
+                        <select id="exerciseType">
+                            <option value="squat">Squat</option>
+                            <option value="deadlift">Deadlift</option>
+                            <option value="bench">Bench Press</option>
+                            <option value="overhead">Overhead Press</option>
+                            <option value="row">Barbell Row</option>
+                        </select>
+                    </div>
+
+                    <div class="video-upload-area" id="uploadArea" onclick="document.getElementById('videoInput').click()">
+                        <div class="upload-icon">📹</div>
+                        <div class="upload-title">Upload Your Lift Video</div>
+                        <div class="upload-subtitle">Click to select or drag and drop</div>
+                        <div class="upload-hint">Max 50MB • MP4, MOV, or WebM</div>
+                    </div>
+                    <input type="file" id="videoInput" accept="video/*" style="display: none;" onchange="handleVideoUpload(event)">
+
+                    <div id="videoPreview"></div>
+                    <div id="formCheckResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div id="history-section" class="content">
+            <div class="container">
+                <div class="card">
+                    <h2>Workout History</h2>
+                    <div id="historyList">
+                        <p class="empty-state">No workouts yet. Generate your first workout!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PRs Section -->
+        <div id="prs-section" class="content">
+            <div class="container">
+                <div class="card">
+                    <h2>Personal Records</h2>
+                    <p class="subtitle">Track your personal bests</p>
+
+                    <div class="form-group">
+                        <label>Exercise</label>
+                        <select id="prExercise">
+                            <option value="squat">Squat</option>
+                            <option value="deadlift">Deadlift</option>
+                            <option value="bench">Bench Press</option>
+                            <option value="overhead">Overhead Press</option>
+                            <option value="row">Barbell Row</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Weight (lbs)</label>
+                        <input type="number" id="prWeight" placeholder="225">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Reps</label>
+                        <input type="number" id="prReps" placeholder="5">
+                    </div>
+
+                    <button class="btn" onclick="addPR()">Add PR</button>
+
+                    <div id="prList" style="margin-top: 32px;">
+                        <p class="empty-state">No PRs logged yet. Add your first personal record!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile-section" class="content">
+            <div class="container">
+                <div class="card">
+                    <h2>Profile & Settings</h2>
+                    
+                    <div class="profile-info">
+                        <div class="profile-row">
+                            <div class="profile-label">Email</div>
+                            <div class="profile-value" id="profileEmail">-</div>
+                        </div>
+                        <div class="profile-row">
+                            <div class="profile-label">Member Since</div>
+                            <div class="profile-value" id="profileJoinDate">-</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 32px;">Preferences</h3>
+
+                    <div class="form-group">
+                        <label>Fitness Goal</label>
+                        <select id="settingsGoal">
+                            <option value="strength">Build Strength</option>
+                            <option value="muscle">Build Muscle</option>
+                            <option value="endurance">Improve Endurance</option>
+                            <option value="lose">Lose Weight</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Experience Level</label>
+                        <select id="settingsLevel">
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Days Per Week</label>
+                        <select id="settingsDays">
+                            <option value="3">3 days</option>
+                            <option value="4">4 days</option>
+                            <option value="5">5 days</option>
+                            <option value="6">6 days</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" onclick="saveSettings()">Save Settings</button>
+
+                    <button class="btn-danger" onclick="clearAllData()">Clear All Data</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2026 FormLift. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
 
     <script src="script.js"></script>
 </body>
