@@ -44,16 +44,24 @@ function updateUIForLoggedInUser() {
         <button class="nav-btn" onclick="showSection('workout')">Workout</button>
         <button class="nav-btn" onclick="showSection('formcheck')">Form Check</button>
         <button class="nav-btn" onclick="showSection('history')">History</button>
+        <button class="nav-btn" onclick="showSection('prs')">PRs</button>
         <div class="user-menu">
             <button class="user-button" onclick="toggleUserMenu()">
                 ${currentUser.email.split('@')[0]} ▼
             </button>
             <div class="user-dropdown" id="userDropdown">
-                <div class="user-dropdown-item">${currentUser.email}</div>
+                <div class="user-dropdown-item" onclick="showSection('profile')">${currentUser.email}</div>
+                <div class="user-dropdown-item" onclick="showSection('profile')">Settings</div>
                 <div class="user-dropdown-item" onclick="handleLogout()">Sign Out</div>
             </div>
         </div>
     `;
+    
+    // Update profile page with user info
+    updateProfilePage();
+    
+    // Load user's PRs
+    loadPRs();
 }
 
 function updateUIForLoggedOutUser() {
@@ -105,16 +113,20 @@ async function handleLogin() {
         return;
     }
 
+    // Show loading
+    showLoading();
+
     const { data, error } = await supabase.auth.signInWithPassword({
         email: email,
         password: password
     });
 
+    hideLoading();
+
     if (error) {
         alert('Login failed: ' + error.message);
     } else {
         closeAuthModal();
-        alert('Welcome back!');
     }
 }
 
@@ -138,26 +150,46 @@ async function handleSignup() {
         return;
     }
 
+    // Show loading
+    showLoading();
+
     const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password
     });
 
+    hideLoading();
+
     if (error) {
         alert('Signup failed: ' + error.message);
     } else {
-        alert('Account created! Please check your email to verify your account.');
+        alert('Account created successfully! You can now sign in.');
         switchToLogin();
+        // Clear signup form
+        document.getElementById('signupEmail').value = '';
+        document.getElementById('signupPassword').value = '';
+        document.getElementById('signupPasswordConfirm').value = '';
     }
 }
 
 async function handleLogout() {
+    showLoading();
+    
     const { error } = await supabase.auth.signOut();
+    
+    hideLoading();
+    
     if (error) {
         alert('Logout failed: ' + error.message);
-    } else {
-        alert('Logged out successfully');
     }
+}
+
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('active');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('active');
 }
 
 // Close modal when clicking outside
@@ -373,4 +405,127 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load stats from localStorage
     const history = JSON.parse(localStorage.getItem('workoutHistory') || '[]');
     document.getElementById('workoutCount').textContent = history.length;
+    
+    loadSettings();
 });
+
+// ===== PR TRACKER =====
+function addPR() {
+    const exercise = document.getElementById('prExercise').value;
+    const weight = document.getElementById('prWeight').value;
+    const reps = document.getElementById('prReps').value;
+
+    if (!weight || !reps) {
+        alert('Please enter both weight and reps');
+        return;
+    }
+
+    const prs = JSON.parse(localStorage.getItem('prs') || '[]');
+    
+    const newPR = {
+        id: Date.now(),
+        exercise: exercise,
+        weight: parseInt(weight),
+        reps: parseInt(reps),
+        date: new Date().toISOString()
+    };
+
+    prs.unshift(newPR);
+    localStorage.setItem('prs', JSON.stringify(prs));
+
+    // Clear inputs
+    document.getElementById('prWeight').value = '';
+    document.getElementById('prReps').value = '';
+
+    // Update display
+    displayPRs();
+    
+    // Update stats
+    const prCount = document.getElementById('prCount');
+    if (prCount) prCount.textContent = prs.length;
+}
+
+function loadPRs() {
+    displayPRs();
+    const prs = JSON.parse(localStorage.getItem('prs') || '[]');
+    const prCount = document.getElementById('prCount');
+    if (prCount) prCount.textContent = prs.length;
+}
+
+function displayPRs() {
+    const prs = JSON.parse(localStorage.getItem('prs') || '[]');
+    const prList = document.getElementById('prList');
+
+    if (prs.length === 0) {
+        prList.innerHTML = '<p class="empty-state">No PRs logged yet. Add your first personal record!</p>';
+        return;
+    }
+
+    prList.innerHTML = prs.map(pr => `
+        <div class="pr-item">
+            <div class="pr-info">
+                <div class="pr-exercise">${capitalize(pr.exercise)}</div>
+                <div class="pr-stats">${pr.weight} lbs × ${pr.reps} rep${pr.reps > 1 ? 's' : ''}</div>
+                <div class="pr-date">${formatDate(pr.date)}</div>
+            </div>
+            <button class="pr-delete" onclick="deletePR(${pr.id})">Delete</button>
+        </div>
+    `).join('');
+}
+
+function deletePR(id) {
+    if (!confirm('Delete this PR?')) return;
+    
+    const prs = JSON.parse(localStorage.getItem('prs') || '[]');
+    const filtered = prs.filter(pr => pr.id !== id);
+    localStorage.setItem('prs', JSON.stringify(filtered));
+    
+    displayPRs();
+    
+    // Update stats
+    const prCount = document.getElementById('prCount');
+    if (prCount) prCount.textContent = filtered.length;
+}
+
+// ===== PROFILE & SETTINGS =====
+function updateProfilePage() {
+    if (!currentUser) return;
+    
+    document.getElementById('profileEmail').textContent = currentUser.email;
+    
+    const joinDate = new Date(currentUser.created_at);
+    document.getElementById('profileJoinDate').textContent = joinDate.toLocaleDateString();
+}
+
+function saveSettings() {
+    const settings = {
+        goal: document.getElementById('settingsGoal').value,
+        level: document.getElementById('settingsLevel').value,
+        days: document.getElementById('settingsDays').value
+    };
+    
+    localStorage.setItem('userSettings', JSON.stringify(settings));
+    alert('Settings saved!');
+}
+
+function loadSettings() {
+    const settings = JSON.parse(localStorage.getItem('userSettings') || '{}');
+    
+    if (settings.goal) document.getElementById('settingsGoal').value = settings.goal;
+    if (settings.level) document.getElementById('settingsLevel').value = settings.level;
+    if (settings.days) document.getElementById('settingsDays').value = settings.days;
+}
+
+function clearAllData() {
+    if (!confirm('Are you sure? This will delete ALL your workouts, PRs, and settings. This cannot be undone!')) {
+        return;
+    }
+    
+    if (!confirm('Really sure? This is permanent!')) {
+        return;
+    }
+    
+    localStorage.clear();
+    alert('All data cleared!');
+    location.reload();
+}
